@@ -8,7 +8,8 @@ SIZE = (WIDTH, HEIGHT)
 FPS = 60
 lost = 0
 score = 0
-monsters_num = 0
+lives = 5
+monsters_num = 5
 window = pygame.display.set_mode(SIZE)
 clock = pygame.time.Clock()
 background = pygame.transform.scale(
@@ -88,8 +89,6 @@ while game:
         window.blit(background, (0,0))
         player.update()
         player.reset()
-        test_enemy.update()
-        test_enemy.reset()
         monsters.update()
         monsters.draw(window)
         bullets.update()
@@ -103,8 +102,35 @@ while game:
                                        True,
                                        (255,255,255)
                                        )
+        text_lives = font_medium.render("Життя: " + str(lives),
+                                       True,
+                                       (255,255,255)
+                                       )
         window.blit(text_score, (0,0))
         window.blit(text_lost, (0, 40))
+        shot_monsters = pygame.sprite.groupcollide(monsters,
+                                                    bullets, 
+                                                    True, True )
+        for i in  shot_monsters:
+            new_enemy = Enemy("ufo.png",
+                              (randint(50, WIDTH-50), 0),
+                              randint(2,8),
+                              (75,50)
+                              )
+            monsters.add(new_enemy)
+            score += 1
+        collisions = pygame.sprite.spritecollide(player, monsters, True)
+        if score >= 10:
+            finish = True
+            monsters.empty()
+            text_win = font_big.render("YOU WIN", True, (255,0,0))
+            window.blit(text_win, (WIDTH/2-50, HEIGHT/2)) 
+
+        if lost >= 20 and lives <=0:
+            finish = True
+            monsters.empty()
+            text_win = font_big.render("YOU LOSE", True, (255,0,0))
+            window.blit(text_win, (WIDTH/2-50, HEIGHT/2))
 
 
     pygame.display.update()
